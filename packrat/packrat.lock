@@ -60,10 +60,6 @@ GithubRepo: SIT.date
 GithubUsername: systematicinvestor
 GithubRef: master
 GithubSha1: 27132075d4c3a3eb7ff4439f86da751d3303eef1
-RemoteHost: https://api.github.com
-RemoteRepo: SIT.date
-RemoteUsername: systematicinvestor
-RemoteSha: 27132075d4c3a3eb7ff4439f86da751d3303eef1
 
 Package: TTR
 Source: CRAN
@@ -227,11 +223,31 @@ Version: 1.2.6
 Hash: 88d3a977a2fca91cc44c36f8717bc481
 Requires: Rcpp
 
+Package: furrr
+Source: CRAN
+Version: 0.1.0
+Hash: 2bf07dd5ce0ab262a081cc9f0555b670
+Requires: rlang, globals, future, purrr
+
 Package: future
 Source: CRAN
 Version: 1.9.0
 Hash: ac421904c51df04a1fbefbc59d97bdfb
-Requires: digest, globals, listenv
+Requires: digest, listenv, globals
+
+Package: gentelellaShiny
+Source: github
+Version: 0.1.0
+Hash: c61abb8b624e57bfc5208d024c1abe10
+Requires: htmltools, httpuv, shiny
+GithubRepo: gentelellaShiny
+GithubUsername: MarkEdmondson1234
+GithubRef: master
+GithubSha1: 9cf3dd1495c35dc667ec8c15fba6e8ee809f6c58
+RemoteHost: https://api.github.com
+RemoteRepo: gentelellaShiny
+RemoteUsername: MarkEdmondson1234
+RemoteSha: 9cf3dd1495c35dc667ec8c15fba6e8ee809f6c58
 
 Package: getPass
 Source: CRAN
@@ -457,7 +473,7 @@ Package: pillar
 Source: CRAN
 Version: 1.3.0
 Hash: 3e43f774fa6dfba877caca1aebbeaa6a
-Requires: cli, crayon, fansi, rlang, utf8
+Requires: crayon, fansi, rlang, utf8, cli
 
 Package: pkgKitten
 Source: CRAN
@@ -514,7 +530,7 @@ Package: promises
 Source: CRAN
 Version: 1.0.1
 Hash: 824985241e0e54c11feefb8c8d4fb134
-Requires: R6, Rcpp, later, magrittr, rlang
+Requires: R6, Rcpp, magrittr, rlang, later
 
 Package: ps
 Source: CRAN
@@ -623,8 +639,14 @@ Package: shiny
 Source: CRAN
 Version: 1.1.0
 Hash: ab653b45dba6dc82eef68fb1e18a3b1a
-Requires: R6, crayon, digest, htmltools, httpuv, jsonlite, later, mime,
-    promises, rlang, sourcetools, xtable
+Requires: R6, crayon, digest, jsonlite, mime, rlang, sourcetools,
+    xtable, htmltools, later, promises, httpuv
+
+Package: shinyWidgets
+Source: CRAN
+Version: 0.4.3
+Hash: a5161a9baf5da9dbf041df853d79f49d
+Requires: jsonlite, htmltools, shiny
 
 Package: shinycssloaders
 Source: CRAN
@@ -663,7 +685,7 @@ Package: tibble
 Source: CRAN
 Version: 1.4.2
 Hash: 83895360ce4f8d2ce92eee00526b5b0b
-Requires: cli, crayon, pillar, rlang
+Requires: crayon, rlang, cli, pillar
 
 Package: tidyr
 Source: CRAN
@@ -755,10 +777,6 @@ GithubRepo: ygdashboard
 GithubUsername: gyang274
 GithubRef: master
 GithubSha1: 05df87c1f9a056fd1466c13fe5c37d15c68dcd64
-RemoteHost: https://api.github.com
-RemoteRepo: ygdashboard
-RemoteUsername: gyang274
-RemoteSha: 05df87c1f9a056fd1466c13fe5c37d15c68dcd64
 
 Package: zoo
 Source: CRAN

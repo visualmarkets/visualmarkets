@@ -112,7 +112,6 @@ shinyServer(
     
     output$cumReturn <- 
       renderHighchart({
-        browser()
         PortCumRet_reactive() %>%
           PortCumRetExh()
       })

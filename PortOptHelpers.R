@@ -57,6 +57,7 @@ GatherPrices <-
           safely({
             function(x){
               getSymbols(x, auto.assign = FALSE)[,6] %>%
+                to.weekly(OHLC = FALSE) %>%
                 `colnames<-` (x)
             }
           })
@@ -130,7 +131,7 @@ OptStats <- function(..returnData =
   
   ..secStats <- create.historical.ia(
     hist.returns = ..returnData,
-    annual.factor = 255
+    annual.factor = 52
   )
   
   ..constraints <- new.constraints(..secStats$n, 

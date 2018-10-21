@@ -51,7 +51,7 @@ gentelellaPage(
             selectizeInput(
               "inputTickers", 
               "Select ETFs",
-              choices = c("SPY", "EFA", "AGG", "HYG", "EEM"), 
+              choices = c("SPY", "EFA", "AGG", "HYG", "EEM", "IWO"), 
               selected = c("SPY", "AGG"), 
               multiple = TRUE),
             dateRangeInput(
@@ -71,9 +71,13 @@ gentelellaPage(
                 width = 12,
                 highchartOutput("highchart") %>% withSpinner()
             ),
-            box(title = 'Portfolio Returns',
-                width = 12,
-                highchartOutput("cumReturn") %>% withSpinner()),
+            tags$div(
+              id = 'portReturns',
+              box(title = 'Portfolio Returns',
+                  width = 12,
+                  highchartOutput("cumReturn") %>% withSpinner())              
+            ),
+
             box(title = "Portfolio Drawdown",
                 width = 12, 
                 highchartOutput("portDrawdowns") %>% withSpinner()),
