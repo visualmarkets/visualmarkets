@@ -21,9 +21,9 @@ suppressPackageStartupMessages({
 # Source Helpers #
 #----------------#
 
-source("PortOptHelpers.R")
-source("UtilityHelpers.R")
-source("VisualMarketsTheme.R")
+source("helpers/PortOptHelpers.R")
+source("helpers/UtilityHelpers.R")
+source("helpers/VisualMarketsTheme.R")
 
 #-----------------------#
 # Create Execution Plan #

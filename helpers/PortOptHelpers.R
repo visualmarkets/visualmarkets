@@ -2,8 +2,8 @@
 # Source Helpers #
 #----------------#
 
-source("VisualMarketsTheme.R")
-source("UtilityHelpers.R")
+source("helpers/VisualMarketsTheme.R")
+source("helpers/UtilityHelpers.R")
 
 #----------#
 # Laod SIT #
@@ -45,10 +45,67 @@ RiskStats <-
                 corData = ..corData))
   }
 
+portopt.resampled <- function
+(
+  ia,             # Input Assumptions
+  constraints = NULL,     # Constraints
+  nportfolios = 50,       # Number of portfolios
+  name = 'Risk',          # Name
+  min.risk.fn = min.risk.portfolio,   # Risk Measure
+  nsamples = 75,         # Number of Samples to draw
+  sample.len = 31,       # Length of each sample
+  shrinkage.fn = F,
+  annual.factor = 52
+)
+{
+  # create basic efficient frontier
+  out = portopt(ia, constraints, nportfolios, name, min.risk.fn)
+  
+  # load / check required packages
+  load.packages('MASS')
+  
+  #Start Monte Carlo simulation of asset returns
+  ia.original = ia
+  
+  if(shrinkage.fn==T){
+    require(tawny)
+    ia$cov = tawny::cov.shrink(as.matrix(ia$hist.returns))
+    
+    ia$cov = ia$cov*((annual.factor)^(1/2))
+    
+  }
+  
+  ia = ia.original
+  
+  for(i in 1:nsamples) {
+    
+    ia$hist.returns = mvrnorm(sample.len, ia.original$expected.return, Sigma = ia.original$cov)
+    
+    ia$expected.return = apply(ia$hist.returns, 2, mean)
+    ia$risk = apply(ia$hist.returns, 2, sd)
+    ia$correlation = cor(ia$hist.returns, use = 'complete.obs', method = 'pearson')
+    ia$cov = ia$correlation * (ia$risk %*% t(ia$risk))
+    
+    if(shrinkage.fn==TRUE){ia$cov = tawny::cov.shrink(ia$hist.returns)}
+    
+    temp = portopt(ia, constraints, nportfolios, name, min.risk.fn)
+    out$weight = out$weight + temp$weight
+  }
+  
+  out$weight = out$weight / (nsamples + 1)
+  
+  # compute risk / return
+  ia = ia.original
+  out$return = portfolio.return(out$weight, ia)
+  out$risk = portfolio.risk(out$weight, ia)
+  
+  return(out)
+}
+
 OptStats <- function(..returnData = 
                        XtsDataFltr() %$% 
                        returns,
-                     ..nportfolios = 5,
+                     ..nportfolios = 50,
                      ..lowerBound = 0, 
                      ..upperBound = 1,
                      ..periodicity = 52){
@@ -62,7 +119,7 @@ OptStats <- function(..returnData =
                                    lb = ..lowerBound, 
                                    ub = ..upperBound)
   ..constraints <- add.constraints(rep(1, ..secStats$n), 1, type = '=', ..constraints)
-  ..optStats <- portopt(..secStats, ..constraints, nportfolios = ..nportfolios)
+  ..optStats <- portopt.resampled(..secStats, ..constraints, nportfolios = ..nportfolios)
   
   return(list(secStats = ..secStats, optStats = ..optStats))
   
@@ -140,9 +197,9 @@ FrontierOptHC <-
     highchart() %>% 
       hc_add_theme(hc_theme_vm()) %>%
       hc_yAxis_multiples(
-        create_yaxis(2, turnopposite = TRUE)
-        #list(name = list(text = 'Asset Return')),
-        #list(name = list(text = "Allocation"), opposite = FALSE)
+        #create_yaxis(2, turnopposite = TRUE)
+        list(name = list(text = 'Asset Return'), top = "0%", height = "45%"),
+        list(name = list(text = "Allocation"), top = "50%", height = "45%", opposite = FALSE)
       ) %>%
       hc_plotOptions(
         line = 
@@ -310,4 +367,5 @@ PortRetrunDist <-
                           ) %>% list_parse()
       )
   }
+
 

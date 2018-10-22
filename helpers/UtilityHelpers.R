@@ -11,7 +11,7 @@ ToJsDate <-
   }
 
 GatherPrices <-
-  function(..tickers = c("SPY", "EFA", "AGG", "HYG", "EEM"),
+  function(..tickers = c("SPY", "AGG", "EFA", "HYG", "EEM", "PGX", 'CWB', "PSP"),
            ..periodicity = "52"){
     ..periodConvert <-
       switch(..periodicity, 
