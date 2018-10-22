@@ -13,6 +13,8 @@ suppressPackageStartupMessages({
   library(promises)  
   library(shiny)
   library(furrr)
+  library(glue)
+  library(SIT)
 })
 
 #----------------#
@@ -20,6 +22,8 @@ suppressPackageStartupMessages({
 #----------------#
 
 source("PortOptHelpers.R")
+source("UtilityHelpers.R")
+source("VisualMarketsTheme.R")
 
 #-----------------------#
 # Create Execution Plan #
@@ -40,7 +44,8 @@ shinyServer(
         
     GetReturns <- 
       reactive({
-        GatherPrices(..tickers = input$inputTickers)
+        GatherPrices(..tickers = input$inputTickers,
+                     ..periodicity = input$timePeriod)
       }) %>%
         debounce(500)
        
@@ -57,12 +62,13 @@ shinyServer(
         # Required Reactive Values
         req(input$optLowerBound)
         req(input$optUpperBound)
-        
+
         FtrDates() %$%
           returns %>% 
           OptStats(
-            ..lowerBound = input$optLowerBound / 100,
-            ..upperBound = input$optUpperBound / 100
+            ..lowerBound  = input$optLowerBound / 100,
+            ..upperBound  = input$optUpperBound / 100,
+            ..periodicity = input$timePeriod %>% as.numeric()
           )
       })
     

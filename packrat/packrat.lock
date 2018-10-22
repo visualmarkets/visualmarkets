@@ -227,13 +227,13 @@ Package: furrr
 Source: CRAN
 Version: 0.1.0
 Hash: 2bf07dd5ce0ab262a081cc9f0555b670
-Requires: rlang, globals, future, purrr
+Requires: future, globals, purrr, rlang
 
 Package: future
 Source: CRAN
 Version: 1.9.0
 Hash: ac421904c51df04a1fbefbc59d97bdfb
-Requires: digest, listenv, globals
+Requires: digest, globals, listenv
 
 Package: gentelellaShiny
 Source: github
@@ -244,10 +244,6 @@ GithubRepo: gentelellaShiny
 GithubUsername: MarkEdmondson1234
 GithubRef: master
 GithubSha1: 9cf3dd1495c35dc667ec8c15fba6e8ee809f6c58
-RemoteHost: https://api.github.com
-RemoteRepo: gentelellaShiny
-RemoteUsername: MarkEdmondson1234
-RemoteSha: 9cf3dd1495c35dc667ec8c15fba6e8ee809f6c58
 
 Package: getPass
 Source: CRAN
@@ -473,7 +469,7 @@ Package: pillar
 Source: CRAN
 Version: 1.3.0
 Hash: 3e43f774fa6dfba877caca1aebbeaa6a
-Requires: crayon, fansi, rlang, utf8, cli
+Requires: cli, crayon, fansi, rlang, utf8
 
 Package: pkgKitten
 Source: CRAN
@@ -530,7 +526,7 @@ Package: promises
 Source: CRAN
 Version: 1.0.1
 Hash: 824985241e0e54c11feefb8c8d4fb134
-Requires: R6, Rcpp, magrittr, rlang, later
+Requires: R6, Rcpp, later, magrittr, rlang
 
 Package: ps
 Source: CRAN
@@ -588,6 +584,12 @@ Version: 1.4.3
 Hash: f50582f9059ab381cd38dd02697d8a88
 Requires: Rcpp, plyr, stringr
 
+Package: rintrojs
+Source: CRAN
+Version: 0.2.0
+Hash: 532ceb0b2ac340f1b1d2b5854ea5a4c8
+Requires: jsonlite, shiny
+
 Package: rlang
 Source: CRAN
 Version: 0.2.2
@@ -639,14 +641,14 @@ Package: shiny
 Source: CRAN
 Version: 1.1.0
 Hash: ab653b45dba6dc82eef68fb1e18a3b1a
-Requires: R6, crayon, digest, jsonlite, mime, rlang, sourcetools,
-    xtable, htmltools, later, promises, httpuv
+Requires: R6, crayon, digest, htmltools, httpuv, jsonlite, later, mime,
+    promises, rlang, sourcetools, xtable
 
 Package: shinyWidgets
 Source: CRAN
 Version: 0.4.3
 Hash: a5161a9baf5da9dbf041df853d79f49d
-Requires: jsonlite, htmltools, shiny
+Requires: htmltools, jsonlite, shiny
 
 Package: shinycssloaders
 Source: CRAN
@@ -685,7 +687,7 @@ Package: tibble
 Source: CRAN
 Version: 1.4.2
 Hash: 83895360ce4f8d2ce92eee00526b5b0b
-Requires: crayon, rlang, cli, pillar
+Requires: cli, crayon, pillar, rlang
 
 Package: tidyr
 Source: CRAN

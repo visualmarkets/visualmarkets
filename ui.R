@@ -1,3 +1,7 @@
+#-------------------------#
+# Load required libraries #
+#-------------------------#
+
 suppressPackageStartupMessages({
   library(shiny)
   library(highcharter)
@@ -5,7 +9,18 @@ suppressPackageStartupMessages({
   library(shinycssloaders)
   library(gentelellaShiny)
   library(shinyWidgets)  
+  library(rintrojs)
 })
+
+#----------------#
+# Set UI Options #
+#----------------#
+
+options(spinner.color = "#1ABB9C")
+
+#-------------#
+# Gen UI HTML #
+#-------------#
 
 gentelellaPage(
   title = "VisualMarkets.io",
@@ -34,16 +49,16 @@ gentelellaPage(
     sidebarDate(),
     sidebarMenu(
       sidebarItem(
-        "Tab 1",
-        tabName = "tab1", 
-        icon = "bar-chart"
+        "Portfolio Optimization",
+        tabName = "portOptTab", 
+        icon = "pie-chart"
       )
     )
   ),
   body = gentelellaBody(
     tabItems(
       tabItem(
-        tabName = "tab1",
+        tabName = "portOptTab",
         fluidRow(
           column(
             width = 4,
@@ -61,7 +76,14 @@ gentelellaPage(
               end = Sys.Date() - 1
             ),
             uiOutput("upperBound"),
-            uiOutput("lowerBound")
+            uiOutput("lowerBound"),
+            selectInput("timePeriod",
+                        "Periodicity",
+                        choices = c("Daily"   = 255,
+                                    "Weekly"  = 52,
+                                    "Monthly" = 12,
+                                    "Yearly" = 1),
+                        selected = 52)
           ),
           column(
             width = 8,
@@ -86,7 +108,18 @@ gentelellaPage(
                 highchartOutput("portBoxPlots") %>% withSpinner()),
             box(title = "Return Box Plot",
                 width = 12, 
-                selectInput("distScatterPort", "Select Portfolio", selected = 1, choices = c(1,2,3,4,5)),
+                dropdownMenu = 
+                  dropdownButton(
+                  size = 'sm',
+                  circle = TRUE, 
+                  status = "primary", 
+                  icon = icon("gear"),
+                  tags$h3("List of Inputs"),
+                  selectInput("distScatterPort", 
+                              "Select Portfolio", 
+                              width = '250px',
+                              selected = 1, 
+                              choices = c(1,2,3,4,5))),
                 highchartOutput("portDistScatter") %>% withSpinner())
           )  
         )

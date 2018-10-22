@@ -1,21 +1,9 @@
-#-------------------------#
-# Load required libraries #
-#-------------------------#
+#----------------#
+# Source Helpers #
+#----------------#
 
-suppressPackageStartupMessages({
-  library(tidyverse)
-  library(magrittr)
-  library(quantmod)
-  library(PerformanceAnalytics)
-  library(highcharter)
-  library(tbl2xts)
-  library(future)
-  library(promises)
-  library(shiny)
-  library(glue)
-  library(kernlab)
-  library(SIT)
-})
+source("VisualMarketsTheme.R")
+source("UtilityHelpers.R")
 
 #----------#
 # Laod SIT #
@@ -33,71 +21,6 @@ suppressPackageStartupMessages({
 options("getSymbols.yahoo.warning" = FALSE)
 options("getSymbols.auto.assign"   = FALSE)
 options("getSymbols.warning4.0"    = FALSE)
-
-#-------------------#
-# Utility Functions #
-#-------------------#
-
-ToJsDate <-
-  function(date = as.Date('2017-12-31')){
-    date %>%
-      as.Date() %>%
-      as.numeric() %>%
-      multiply_by(86400000)
-  }
-
-#------------------#
-# Define Functions #
-#------------------#
-
-GatherPrices <-
-  function(..tickers = c("SPY", "EFA", "AGG", "HYG", "EEM")){
-    ..prices <-
-      map(..tickers,
-          safely({
-            function(x){
-              getSymbols(x, auto.assign = FALSE)[,6] %>%
-                to.weekly(OHLC = FALSE) %>%
-                `colnames<-` (x)
-            }
-          })
-      ) %>%
-      map(function(x){x$result}) %>%
-      reduce(function(x, y){
-        merge(x, y, all = TRUE)
-      })
-    ..returns <-
-      ..prices %$%
-      map(names(.),
-          function(x){
-            .[,x] %>%
-              Return.calculate() %>%
-              na.omit()
-          }) %>%
-      reduce(function(x, y){
-        merge(x, y, all = TRUE)
-      }) %>% 
-      na.omit()
-    return(list(prices  = ..prices,
-                returns = ..returns))
-  }
-
-XtsDataFltr <- 
-  function(..priceRetData = GatherPrices(), start = NULL, end = NULL){
-    ..start <- 
-      if(is.null(start)){..priceRetData %$% prices %>% index() %>% min()} else {start}
-    ..end   <- if(is.null(end)){..priceRetData %$% prices %>% index() %>% max()} else {end}
-    ..priceRetData %>%
-      map(function(x){
-        map(1:ncol(x),
-            function(y){
-              x[glue("{..start}/{..end}"), y]
-            }
-        ) %>% reduce(function(x,y){
-          merge(x, y, all = TRUE)
-        })
-      })
-  }
 
 #-------------------------------#
 # Portfolio Optimization Inputs #
@@ -127,11 +50,12 @@ OptStats <- function(..returnData =
                        returns,
                      ..nportfolios = 5,
                      ..lowerBound = 0, 
-                     ..upperBound = 1){
+                     ..upperBound = 1,
+                     ..periodicity = 52){
   
   ..secStats <- create.historical.ia(
     hist.returns = ..returnData,
-    annual.factor = 52
+    annual.factor = ..periodicity
   )
   
   ..constraints <- new.constraints(..secStats$n, 
@@ -162,6 +86,13 @@ FrontierOptHC <-
                    stringsAsFactors = FALSE)
       )
     
+     ..symbols <- c('frontier', ..secStats[['symbols']])
+     
+     ..hcColors <- 
+       tibble(series = ..symbols,
+              color = hc_theme_vm()[['colors']][1:length(..symbols)]
+       )
+    
     ..frontierOptHcData <- 
       ..frontierTbl %$%
       map(
@@ -171,6 +102,7 @@ FrontierOptHC <-
           list(
             name  = x,
             id    = glue("id_{x}"),
+            color = ..hcColors %>% filter(series == x) %>% pull(color),
             type  = ..mapValues$type %>% unique(),
             yAxis = 0,
             data  = data.frame(x = ..mapValues$risk,
@@ -191,6 +123,7 @@ FrontierOptHC <-
           list(name = x,
                type = 'area',
                linkedTo = glue("id_{x}"),
+               color = ..hcColors %>% filter(series == x) %>% pull(color),
                stacking = 'normal',
                yAxis = 1,
                data = data.frame(x = .[['risk']], 
@@ -205,7 +138,12 @@ FrontierOptHC <-
              ..portOptHcData)
     
     highchart() %>% 
-      hc_yAxis_multiples(create_yaxis(2, turnopposite = FALSE)) %>%
+      hc_add_theme(hc_theme_vm()) %>%
+      hc_yAxis_multiples(
+        create_yaxis(2, turnopposite = TRUE)
+        #list(name = list(text = 'Asset Return')),
+        #list(name = list(text = "Allocation"), opposite = FALSE)
+      ) %>%
       hc_plotOptions(
         line = 
           list(marker = list(enabled = FALSE),
@@ -257,15 +195,16 @@ PortCumRetExh <-
             data = data.frame(x = index(.) %>% ToJsDate(), 
                               y = .[,x] %>% as.numeric() %>% `+` (1) %>% cumprod()
             ) %>% 
-              mutate(ttValue = glue("{round(y*100, 1)}%")) %>% 
+              mutate(ttValue = round(y * 100, 1)) %>% 
               list_parse())
         }
       )
     
     highchart() %>% 
+      hc_add_theme(hc_theme_vm()) %>%
       hc_rangeSelector(enabled = TRUE) %>%
       hc_tooltip(shared = TRUE,
-                 pointFormat = '<span style="color:{point.color}">●</span> {series.name}: <b>{point.ttValue}%</b><br/>') %>%
+                 pointFormat = '<span style="color:{point.color}">●</span> {series.name}: <b>{point.ttValue}</b><br/>') %>%
       hc_plotOptions(line = 
                        list(marker = list(enabled = FALSE))) %>%
       hc_xAxis(type = 'datetime') %>%
@@ -288,15 +227,16 @@ PortDrawdownExh <-
               data = data.frame(x = index(.) %>% ToJsDate(), 
                                 y = .[,x] %>% as.numeric()
               ) %>% 
-                mutate(ttValue = glue("{round(y*100, 1)}%")) %>% 
+                mutate(ttValue = glue("{round(y*100, 1)}")) %>% 
                 list_parse())
           }
         )  
       
     highchart() %>% 
+      hc_add_theme(hc_theme_vm()) %>%
       hc_rangeSelector(enabled = TRUE) %>%
       hc_tooltip(shared = TRUE,
-                 pointFormat = '<span style="color:{point.color}">●</span> {series.name}: <b>{point.ttValue}%</b><br/>') %>%
+                 pointFormat = '<span style="color:{point.color}">●</span> {series.name}: <b>{point.ttValue}</b><br/>') %>%
       hc_plotOptions(line = list(marker = list(enabled = FALSE))) %>%
       hc_xAxis(type = 'datetime') %>%
       hc_add_series_list(..drawPlotData)
@@ -329,6 +269,7 @@ PortRetrunDist <-
     ..portName   <- names(..portCumRet)
     
     highchart() %>%
+      hc_add_theme(hc_theme_vm()) %>%
       hc_xAxis(list(name = 'test')) %>%
       hc_yAxis_multiples(
         list(name = 'yAxis0'), 
@@ -369,3 +310,4 @@ PortRetrunDist <-
                           ) %>% list_parse()
       )
   }
+
