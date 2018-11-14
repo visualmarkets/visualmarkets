@@ -62,7 +62,7 @@ shinyServer(
         # Required Reactive Values
         req(input$optLowerBound)
         req(input$optUpperBound)
-
+        
         FtrDates() %$%
           returns %>% 
           OptStats(
@@ -75,7 +75,7 @@ shinyServer(
     PortCumRet_reactive <- 
       reactive({
         PortCumRet(
-          weights = PortOpt()[[2]]$weight,
+          weights = PortOpt()[['optStats']]$weight,
           rtn     = FtrDates() %$% returns
         )
       })
@@ -88,10 +88,11 @@ shinyServer(
       renderUI({
         ..tickerLen <- GetReturns() %$% returns %>% ncol()
         sliderInput("optUpperBound",
-                    "Set Lower Bound",
-                    min = 100 / ..tickerLen,
+                    "Set Upper Bound",
+                    min = (100 / ..tickerLen) %>% ceiling(),
                     max = 100,
-                    value = 100)
+                    value = 100,
+                    step = 5)
       })
     
     output$lowerBound <-
@@ -100,7 +101,7 @@ shinyServer(
         sliderInput("optLowerBound",
                     "Set Lower Bound",
                     min   = 0 ,
-                    max   = 100 / ..tickerLen,
+                    max   = (100 / ..tickerLen) %>% floor(),
                     value = 0,
                     step  = 5)
       })
@@ -131,14 +132,12 @@ shinyServer(
     output$portBoxPlots <- 
       renderHighchart({
         PortCumRet_reactive() %>%
-          to.monthly(OHLC = FALSE) %>%
           PortBoxPlots()
       })
     
     output$portDistScatter <- 
       renderHighchart({
         PortCumRet_reactive() %>%
-          to.monthly(OHLC = FALSE) %>%
           PortRetrunDist(..portfolio = input$distScatterPort %>% as.numeric())
       })
     

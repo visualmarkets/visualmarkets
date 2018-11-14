@@ -66,8 +66,8 @@ gentelellaPage(
             selectizeInput(
               "inputTickers", 
               "Select ETFs",
-              choices = c("SPY", "EFA", "AGG", "HYG", "EEM", "IWO"), 
-              selected = c("SPY", "AGG"), 
+              choices = c("SPY", "AGG", "EFA", "HYG", "EEM", "PGX", 'CWB', "PSP"), 
+              selected = c("SPY", "AGG", "EFA"), 
               multiple = TRUE),
             dateRangeInput(
               "portOptDates",
@@ -84,6 +84,7 @@ gentelellaPage(
                                     "Monthly" = 12,
                                     "Yearly" = 1),
                         selected = 52)
+            
           ),
           column(
             width = 8,
