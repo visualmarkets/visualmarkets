@@ -102,22 +102,28 @@ portopt.resampled <-
 
   }
 
-OptStats <- function(..returnData =
-                       XtsDataFltr() %$%
-                       returns,
-                     ..nportfolios = 10,
-                     ..lowerBound = 0,
-                     ..upperBound = 1,
-                     ..periodicity = 52){
+OptStats <- 
+  function(
+    ..returnData = 
+      XtsDataFltr() %$% returns,
+    ..nportfolios = 5,
+    ..lowerBound = 0,
+    ..upperBound = 1,
+    ..periodicity = 52
+  ){
 
-  ..secStats <- create.historical.ia(
-    hist.returns = ..returnData,
-    annual.factor = ..periodicity
-  )
+  ..secStats <- 
+    create.historical.ia(
+      hist.returns = ..returnData,
+      annual.factor = ..periodicity
+    )
 
-  ..constraints <- new.constraints(..secStats$n,
-                                   lb = ..lowerBound,
-                                   ub = ..upperBound)
+  ..constraints <- 
+    new.constraints(
+      ..secStats$n,
+      lb = ..lowerBound,
+      ub = ..upperBound
+    )
   ..constraints <- add.constraints(rep(1, ..secStats$n), 1, type = '=', ..constraints)
   # ..optStats <- portopt(..secStats, ..constraints, nportfolios = ..nportfolios)
   ..optStats <- portopt.resampled(..secStats, ..constraints, nportfolios = ..nportfolios)
@@ -127,8 +133,11 @@ OptStats <- function(..returnData =
 }
 
 FrontierOptHC <-
-  function(..privateData = OptStats()[[2]],
-           ..secStats = OptStats()[[1]]){
+  function(
+    ..privateData = OptStats()[[2]],
+    ..secStats = OptStats()[[1]]
+  ){
+  
     require(highcharter)
     ..frontierTbl <-
       data.frame(return = ..privateData$return,
@@ -145,7 +154,7 @@ FrontierOptHC <-
       )
 
      ..symbols <- c('frontier', ..secStats[['symbols']])
-
+     
      ..hcColors <-
        tibble(series = ..symbols,
               color = hc_theme_vm()[['colors']][1:length(..symbols)]
@@ -225,8 +234,10 @@ FrontierOptHC <-
 #--------------------#
 
 PortCumRet <-
-  function(weights = OptStats()[[2]]$weight,
-           rtn     = XtsDataFltr() %$% returns){
+  function(
+    weights = OptStats()[[2]]$weight,
+    rtn     = XtsDataFltr() %$% returns
+  ){
     map(
       1:nrow(weights),
       function(x){
@@ -235,7 +246,8 @@ PortCumRet <-
     ) %>%
       reduce(function(x, y){
         merge(x , y, all = TRUE)
-      })
+      }) %>% 
+      set_names(c("Conservative", "Mod Con", "Moderate", 'Mod Agg', "Aggressive"))
   }
 
 PortCumRetExh <-
@@ -327,7 +339,7 @@ brewBoxPlot <-
         names(.),
         function(x){
           list(
-            x = which(names(.) == x),
+            x = which(names(.) == x) - 1,
             low = min(..portReturns[,x]),
             q1 = sd(..portReturns[,x]) * -1.5,
             median = median(..portReturns[,x]),
@@ -341,7 +353,7 @@ brewBoxPlot <-
     highchart() %>%
       hc_chart(type = 'boxplot') %>%
       hc_xAxis(
-        categories = list('1', '2'),
+        categories = list("Conservative", "Mod Con", "Moderate", 'Mod Agg', "Aggressive"),
         title = list(text = 'Experiment No.')) %>%
       hc_add_series(
         type = 'boxplot',

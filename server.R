@@ -87,23 +87,25 @@ shinyServer(
     output$upperBound <-
       renderUI({
         ..tickerLen <- GetReturns() %$% returns %>% ncol()
-        sliderInput("optUpperBound",
-                    "Set Upper Bound",
-                    min = (100 / ..tickerLen) %>% ceiling(),
-                    max = 100,
-                    value = 100,
-                    step = 5)
+        sliderInput(
+          "optUpperBound",
+          "Set Upper Bound",
+          min   = (100 / ..tickerLen) %>% ceiling(),
+          max   = 100,
+          value = 100,
+          step  = 5)
       })
     
     output$lowerBound <-
       renderUI({
         ..tickerLen <- GetReturns() %$% returns %>% ncol()
-        sliderInput("optLowerBound",
-                    "Set Lower Bound",
-                    min   = 0 ,
-                    max   = (100 / ..tickerLen) %>% floor(),
-                    value = 0,
-                    step  = 5)
+        sliderInput(
+          "optLowerBound",
+          "Set Lower Bound",
+          min   = 0 ,
+          max   = (100 / ..tickerLen) %>% floor(),
+          value = 0,
+          step  = 5)
       })
     
     #-------------------------#
